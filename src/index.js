@@ -17,8 +17,17 @@ const publicDirectoryPath = path.join(__dirname, '../public')
 
 app.use(express.static(publicDirectoryPath))//using express static middleware to serve the above file(that we got via path)
 
-io.on('connection', () => {
+io.on('connection', (socket) => {
     console.log('New WebSocket connection')//Message from server side....kind of a message that a new client get when it gets connected
+
+    socket.emit('message',"Welcome!!")//Server emitting an event (here a greeting message) to the new client
+
+    socket.on('sendMessage', (message) => {
+
+        io.emit('message',message)//server is emitting the event to every client connected right now...message that it is recieving from a particular client via socket.on
+    })
+
+
 })
 
 server.listen(port, () => {
