@@ -21,12 +21,16 @@ io.on('connection', (socket) => {
     console.log('New WebSocket connection')//Message from server side....kind of a message that a new client get when it gets connected
 
     socket.emit('message',"Welcome!!")//Server emitting an event (here a greeting message) to the new client
+    socket.broadcast.emit('message', 'A new user has joined!!')//here the message will be send to every client except the one for which this socket is used
 
     socket.on('sendMessage', (message) => {
 
         io.emit('message',message)//server is emitting the event to every client connected right now...message that it is recieving from a particular client via socket.on
     })
 
+    socket.on('disconnect', () => {//run some code when a user(whose socket is there) disconnected..'disconnect'->built in event followed by a listener same as connection in io.on
+        io.emit('message', 'A user has left!') //no need to use broadcast as current user has already been disconnected.
+    })
 
 })
 
