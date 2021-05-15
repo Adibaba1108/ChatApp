@@ -28,6 +28,10 @@ io.on('connection', (socket) => {
         io.emit('message',message)//server is emitting the event to every client connected right now...message that it is recieving from a particular client via socket.on
     })
 
+    socket.on('sendLocation', (coords) => {
+        io.emit('message', `https://google.com/maps?q=${coords.latitude},${coords.longitude}`) //creating a query atring to get directly to the user's location on gmaps via this link
+    })
+
     socket.on('disconnect', () => {//run some code when a user(whose socket is there) disconnected..'disconnect'->built in event followed by a listener same as connection in io.on
         io.emit('message', 'A user has left!') //no need to use broadcast as current user has already been disconnected.
     })
