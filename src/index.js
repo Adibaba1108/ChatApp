@@ -39,7 +39,7 @@ io.on('connection', (socket) => {
     })
 
     socket.on('sendLocation', (coords, callback) => {
-        io.emit('message', `https://google.com/maps?q=${coords.latitude},${coords.longitude}`)//creating a query atring to get directly to the user's location on gmaps via this link
+        io.emit('locationMessage', `https://google.com/maps?q=${coords.latitude},${coords.longitude}`)//creating a query atring to get directly to the user's location on gmaps via this link
         callback()
     })
 

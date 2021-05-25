@@ -10,7 +10,7 @@ const $messages = document.querySelector('#messages') //it is the location where
 
 // Templates
 const messageTemplate = document.querySelector('#message-template').innerHTML//what we realy need is the html contained inside(innerHTML)
-
+const locationMessageTemplate = document.querySelector('#location-message-template').innerHTML
  
 socket.on('message', (message) => {
     console.log(message)
@@ -19,6 +19,14 @@ socket.on('message', (message) => {
     })
     $messages.insertAdjacentHTML('beforeend', html)//this allows other HTML adjacent to the element we've selected here our message
     //beforeend would add new messages(here message is in variable html) at the bottom inside of the div.
+})
+ 
+socket.on('locationMessage', (url) => {
+    console.log(url)
+    const html = Mustache.render(locationMessageTemplate, {
+        url
+    })
+    $messages.insertAdjacentHTML('beforeend', html)
 })
 
 $messageForm.addEventListener('submit',(e) => {
