@@ -15,16 +15,18 @@ const locationMessageTemplate = document.querySelector('#location-message-templa
 socket.on('message', (message) => {
     console.log(message)
     const html = Mustache.render(messageTemplate, {
-        message //this is an object and we provide a key value pair and value will be get injected to the {{message }}in in the html file and we will render that 
+        message: message.text, //this is an object and we provide a key value pair and value will be get injected to the {{message }}in in the html file and we will render that 
+        createdAt: moment(message.createdAt).format('h:mm a')//h for hour mm for minute a for am/pm
     })
     $messages.insertAdjacentHTML('beforeend', html)//this allows other HTML adjacent to the element we've selected here our message
     //beforeend would add new messages(here message is in variable html) at the bottom inside of the div.
 })
  
-socket.on('locationMessage', (url) => {
-    console.log(url)
+socket.on('locationMessage', (message) => {
+    console.log(message)
     const html = Mustache.render(locationMessageTemplate, {
-        url
+        url: message.url,
+        createdAt: moment(message.createdAt).format('h:mm a')
     })
     $messages.insertAdjacentHTML('beforeend', html)
 })
