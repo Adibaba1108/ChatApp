@@ -11,10 +11,34 @@ const $messages = document.querySelector('#messages') //it is the location where
 // Templates
 const messageTemplate = document.querySelector('#message-template').innerHTML//what we realy need is the html contained inside(innerHTML)
 const locationMessageTemplate = document.querySelector('#location-message-template').innerHTML
- 
+const sidebarTemplate = document.querySelector('#sidebar-template').innerHTML
 // Options
 const { username, room } = Qs.parse(location.search, { ignoreQueryPrefix: true })
 //parsing the querry string via qs, removing '?' via ignoreQuerryPrefix and storing the result which is an object into username and room respectively
+
+
+const autoscroll = () => {
+    // New message element
+    const $newMessage = $messages.lastElementChild //new message which comes at the bottom
+
+    // Height of the new message
+    const newMessageStyles = getComputedStyle($newMessage)
+    const newMessageMargin = parseInt(newMessageStyles.marginBottom)
+    const newMessageHeight = $newMessage.offsetHeight + newMessageMargin
+
+    // Visible height
+    const visibleHeight = $messages.offsetHeight
+
+    // Height of messages container
+    const containerHeight = $messages.scrollHeight
+
+    // How far have I scrolled..
+    const scrollOffset = $messages.scrollTop + visibleHeight
+
+    if (containerHeight - newMessageHeight <= scrollOffset) {
+        $messages.scrollTop = $messages.scrollHeight
+    }
+}
 
 socket.on('message', (message) => {
     console.log(message)
@@ -25,6 +49,8 @@ socket.on('message', (message) => {
     })
     $messages.insertAdjacentHTML('beforeend', html)//this allows other HTML adjacent to the element we've selected here our message
     //beforeend would add new messages(here message is in variable html) at the bottom inside of the div.
+
+    autoscroll()
 })
  
 socket.on('locationMessage', (message) => {
@@ -35,6 +61,15 @@ socket.on('locationMessage', (message) => {
         createdAt: moment(message.createdAt).format('h:mm a')
     })
     $messages.insertAdjacentHTML('beforeend', html)
+    autoscroll()
+})
+
+socket.on('roomData', ({ room, users }) => {
+    const html = Mustache.render(sidebarTemplate, {
+        room,
+        users //an array with current users in that room
+    })
+    document.querySelector('#sidebar').innerHTML = html
 })
 
 $messageForm.addEventListener('submit',(e) => {

@@ -38,7 +38,11 @@ io.on('connection', (socket) => {
 
         socket.emit('message', generateMessage('Admin','Welcome!'))
         socket.broadcast.to(user.room).emit('message', generateMessage('Admin',`${user.username} has joined!`))
-
+        io.to(user.room).emit('roomData', {
+            room: user.room,
+            users: getUsersInRoom(user.room)
+        })
+        
         callback() //no argument means no errors
     })
 
@@ -59,6 +63,7 @@ io.on('connection', (socket) => {
         const user = getUser(socket.id)
 
         io.to(user.room).emit('locationMessage', generateLocationMessage(user.username,`https://google.com/maps?q=${coords.latitude},${coords.longitude}`))
+
         callback()
     })
 
@@ -68,6 +73,10 @@ io.on('connection', (socket) => {
         if(user){ // if not undefined
             io.to(user.room).emit('message',  generateMessage('Admin',`${user.username} has left!`)) //no need to use broadcast as current user has already been disconnected.
             //'to' is used to notified user only in that room
+            io.to(user.room).emit('roomData', {
+                room: user.room,
+                users: getUsersInRoom(user.room)
+            })
         }
            
     })

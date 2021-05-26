@@ -47,7 +47,7 @@ const getUser = (id) => { //return the user object(containing name,room,id) with
     return users.find((user) => user.id === id)
 }
 
-const getUsersInRoom = (room) => {
+const getUsersInRoom = (room) => {//it will be used in updating current user in a particular room and updating sidebar also
     room = room.trim().toLowerCase()
     return users.filter((user) => user.room === room)
 }
