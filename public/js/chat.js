@@ -19,6 +19,7 @@ const { username, room } = Qs.parse(location.search, { ignoreQueryPrefix: true }
 socket.on('message', (message) => {
     console.log(message)
     const html = Mustache.render(messageTemplate, {
+        username: message.username,
         message: message.text, //this is an object and we provide a key value pair and value will be get injected to the {{message }}in in the html file and we will render that 
         createdAt: moment(message.createdAt).format('h:mm a')//h for hour mm for minute a for am/pm
     })
@@ -29,6 +30,7 @@ socket.on('message', (message) => {
 socket.on('locationMessage', (message) => {
     console.log(message)
     const html = Mustache.render(locationMessageTemplate, {
+        username: message.username,
         url: message.url,
         createdAt: moment(message.createdAt).format('h:mm a')
     })
@@ -78,7 +80,7 @@ $sendLocationButton.addEventListener('click', () => {
 socket.emit('join', { username, room }, (error) => {
     if (error) {
         alert(error)
-        location.href = '/'
+        location.href = '/' //root of the site that is join page
     }
 })
 //server will listen it and make sure that the user will enter the particular room it wants to enter if possible(validation req)

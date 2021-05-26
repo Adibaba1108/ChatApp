@@ -43,7 +43,7 @@ const removeUser = (id) => { //removing the user with the given id
     }
 }
 
-const getUser = (id) => {
+const getUser = (id) => { //return the user object(containing name,room,id) with the help of id
     return users.find((user) => user.id === id)
 }
 

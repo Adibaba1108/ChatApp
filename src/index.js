@@ -36,25 +36,29 @@ io.on('connection', (socket) => {
 
         socket.join(user.room) //join to subscribe the socket to a given channel(room)
 
-        socket.emit('message', generateMessage('Welcome!'))
-        socket.broadcast.to(user.room).emit('message', generateMessage(`${user.username} has joined!`))
+        socket.emit('message', generateMessage('Admin','Welcome!'))
+        socket.broadcast.to(user.room).emit('message', generateMessage('Admin',`${user.username} has joined!`))
 
         callback() //no argument means no errors
     })
 
     socket.on('sendMessage', (message, callback) => {
+
+        const user = getUser(socket.id)
         const filter = new Filter()
 
         if (filter.isProfane(message)) {
             return callback('Profanity is not allowed!')//arg is sent as an error,so message will not be emitted by server here and this error message will be shown to the client. 
         }
 
-        io.to('Center City').emit('message', generateMessage(message))//server is emitting the event to every client connected right now...message that it is recieving from a particular client via socket.on
+        io.to(user.room).emit('message', generateMessage(user.username,message))//server is emitting the event to every client connected right now...message that it is recieving from a particular client via socket.on
         callback()//no argument is sent
     })
 
     socket.on('sendLocation', (coords, callback) => {
-        io.emit('locationMessage', generateLocationMessage(`https://google.com/maps?q=${coords.latitude},${coords.longitude}`))
+        const user = getUser(socket.id)
+
+        io.to(user.room).emit('locationMessage', generateLocationMessage(user.username,`https://google.com/maps?q=${coords.latitude},${coords.longitude}`))
         callback()
     })
 
@@ -62,7 +66,7 @@ io.on('connection', (socket) => {
         const user = removeUser(socket.id)
 
         if(user){ // if not undefined
-            io.to(user.room).emit('message',  generateMessage(`${user.username} has left!`)) //no need to use broadcast as current user has already been disconnected.
+            io.to(user.room).emit('message',  generateMessage('Admin',`${user.username} has left!`)) //no need to use broadcast as current user has already been disconnected.
             //'to' is used to notified user only in that room
         }
            
