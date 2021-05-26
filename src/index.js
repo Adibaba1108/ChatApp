@@ -6,6 +6,7 @@ const express = require('express')
 const socketio = require('socket.io')
 const Filter = require('bad-words')
 const { generateMessage,generateLocationMessage } = require('./utils/messages') //will return the object thart is exported
+const { addUser, removeUser, getUser, getUsersInRoom } = require('./utils/users')
 
 const app = express()
 const server = http.createServer(app)//Creating server outside express library and then configuring it to use our Express app then
@@ -25,8 +26,21 @@ app.use(express.static(publicDirectoryPath))//using express static middleware to
 io.on('connection', (socket) => {
     console.log('New WebSocket connection')//Message from server side....kind of a message that a new client get when it gets connected
 
-    socket.emit('message', generateMessage('Welcome!'))//Server emitting an event (here a greeting message) to the new client
-    socket.broadcast.emit('message', generateMessage('A new user has joined!'))//here the message will be send to every client except the one for which this socket is used
+    socket.on('join', (options, callback) => {
+        //we will get id from socket.id every connection has its own unique id
+        const { error, user } = addUser({ id: socket.id, ...options }) // ... spread syntax to break it into username and room
+
+        if (error) { //if error then just return that and chat.js (client)will then sent it to the user
+            return callback(error)
+        }
+
+        socket.join(user.room) //join to subscribe the socket to a given channel(room)
+
+        socket.emit('message', generateMessage('Welcome!'))
+        socket.broadcast.to(user.room).emit('message', generateMessage(`${user.username} has joined!`))
+
+        callback() //no argument means no errors
+    })
 
     socket.on('sendMessage', (message, callback) => {
         const filter = new Filter()
@@ -35,7 +49,7 @@ io.on('connection', (socket) => {
             return callback('Profanity is not allowed!')//arg is sent as an error,so message will not be emitted by server here and this error message will be shown to the client. 
         }
 
-        io.emit('message', generateMessage(message))//server is emitting the event to every client connected right now...message that it is recieving from a particular client via socket.on
+        io.to('Center City').emit('message', generateMessage(message))//server is emitting the event to every client connected right now...message that it is recieving from a particular client via socket.on
         callback()//no argument is sent
     })
 
@@ -45,7 +59,13 @@ io.on('connection', (socket) => {
     })
 
     socket.on('disconnect', () => { //run some code when a user(whose socket is there) disconnected..'disconnect'->built in event followed by a listener same as connection in io.on
-        io.emit('message',  generateMessage('A user has left!')) //no need to use broadcast as current user has already been disconnected.
+        const user = removeUser(socket.id)
+
+        if(user){ // if not undefined
+            io.to(user.room).emit('message',  generateMessage(`${user.username} has left!`)) //no need to use broadcast as current user has already been disconnected.
+            //'to' is used to notified user only in that room
+        }
+           
     })
 })
 

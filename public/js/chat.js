@@ -12,6 +12,10 @@ const $messages = document.querySelector('#messages') //it is the location where
 const messageTemplate = document.querySelector('#message-template').innerHTML//what we realy need is the html contained inside(innerHTML)
 const locationMessageTemplate = document.querySelector('#location-message-template').innerHTML
  
+// Options
+const { username, room } = Qs.parse(location.search, { ignoreQueryPrefix: true })
+//parsing the querry string via qs, removing '?' via ignoreQuerryPrefix and storing the result which is an object into username and room respectively
+
 socket.on('message', (message) => {
     console.log(message)
     const html = Mustache.render(messageTemplate, {
@@ -70,3 +74,11 @@ $sendLocationButton.addEventListener('click', () => {
         })
     })
 })
+
+socket.emit('join', { username, room }, (error) => {
+    if (error) {
+        alert(error)
+        location.href = '/'
+    }
+})
+//server will listen it and make sure that the user will enter the particular room it wants to enter if possible(validation req)
