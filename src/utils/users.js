@@ -1,10 +1,11 @@
+//This files helps to track the users and we have integrated it with index.js
+
 const users = []
 
 // addUser, removeUser, getUser, getUsersInRoom
 
 const addUser = ({ id, username, room }) => {
-    // Clean the data
-    //to remove spaces..trim and to convert it to lower case
+    // Clean the data -: to remove spaces..trim and to convert it to lower case-->Andrew and andrew are same users
     username = username.trim().toLowerCase()
     room = room.trim().toLowerCase()
 
@@ -49,7 +50,7 @@ const getUser = (id) => { //return the user object(containing name,room,id) with
 
 const getUsersInRoom = (room) => {//it will be used in updating current user in a particular room and updating sidebar also
     room = room.trim().toLowerCase()
-    return users.filter((user) => user.room === room)
+    return users.filter((user) => user.room === room) //here constructing a new array of the users in that particular room
 }
 
 module.exports = {

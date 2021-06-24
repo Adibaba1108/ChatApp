@@ -14,7 +14,7 @@ const locationMessageTemplate = document.querySelector('#location-message-templa
 const sidebarTemplate = document.querySelector('#sidebar-template').innerHTML
 // Options
 const { username, room } = Qs.parse(location.search, { ignoreQueryPrefix: true })
-//parsing the querry string via qs, removing '?' via ignoreQuerryPrefix and storing the result which is an object into username and room respectively
+//parsing the querry string via qs library, removing '?' via ignoreQuerryPrefix and storing the result which is an object into username and room respectively
 
 
 const autoscroll = () => {
@@ -48,7 +48,7 @@ socket.on('message', (message) => {
         createdAt: moment(message.createdAt).format('h:mm a')//h for hour mm for minute a for am/pm
     })
     $messages.insertAdjacentHTML('beforeend', html)//this allows other HTML adjacent to the element we've selected here our message
-    //beforeend would add new messages(here message is in variable html) at the bottom inside of the div.
+    //beforeend would add new messages(here message is in variable html) at the bottom inside of the div.,other optons are like afterbegin afterend,etc.
 
     autoscroll()
 })
@@ -79,7 +79,7 @@ $messageForm.addEventListener('submit',(e) => {
 
     const message = e.target.elements.message.value //e then target (which is form here) then the name of the input--message variable.. and then its value..
 
-    socket.emit('sendMessage', message, (error) => {
+    socket.emit('sendMessage', message, (error) => { //callback func. 
         $messageFormButton.removeAttribute('disabled')
         $messageFormInput.value = ''
         $messageFormInput.focus()
@@ -112,7 +112,7 @@ $sendLocationButton.addEventListener('click', () => {
     })
 })
 
-socket.emit('join', { username, room }, (error) => {
+socket.emit('join', { username, room }, (error) => { //'join' is a keyword here
     if (error) {
         alert(error)
         location.href = '/' //root of the site that is join page

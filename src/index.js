@@ -23,17 +23,17 @@ app.use(express.static(publicDirectoryPath))//using express static middleware to
 
 
 
-io.on('connection', (socket) => {
+io.on('connection', (socket) => {//socket will be specific to a specific user
     console.log('New WebSocket connection')//Message from server side....kind of a message that a new client get when it gets connected
 
-    socket.on('join', (options, callback) => {
+    socket.on('join', (options, callback) => {//listening to the join event that we emitted on chat.js(client)
         //we will get id from socket.id every connection has its own unique id
         const { error, user } = addUser({ id: socket.id, ...options }) // ... spread syntax to break it into username and room
 
         if (error) { //if error then just return that and chat.js (client)will then sent it to the user
             return callback(error)
         }
-
+        //important step for creating rooms
         socket.join(user.room) //join to subscribe the socket to a given channel(room)
 
         socket.emit('message', generateMessage('Admin','Welcome!'))
@@ -56,6 +56,7 @@ io.on('connection', (socket) => {
         }
 
         io.to(user.room).emit('message', generateMessage(user.username,message))//server is emitting the event to every client connected right now...message that it is recieving from a particular client via socket.on
+        //so basically generateMessage func takes arguments and then return the object message which will be emitted to every client and eventually rendered 
         callback()//no argument is sent
     })
 
@@ -69,7 +70,7 @@ io.on('connection', (socket) => {
 
     socket.on('disconnect', () => { //run some code when a user(whose socket is there) disconnected..'disconnect'->built in event followed by a listener same as connection in io.on
         const user = removeUser(socket.id)
-
+        //first from id find user ,then from user find users array which are in same room via function 'getUsersInRoom' sending room as an argument.
         if(user){ // if not undefined
             io.to(user.room).emit('message',  generateMessage('Admin',`${user.username} has left!`)) //no need to use broadcast as current user has already been disconnected.
             //'to' is used to notified user only in that room
